@@ -76,7 +76,7 @@ public class CipherUI extends Application {
         resultArea.setEditable(false);
         resultArea.setPrefHeight(300);
         resultArea.setWrapText(true);
-        resultArea.setStyle("-fx-background-color: #FDFAF6; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+        resultArea.setStyle("-fx-background-color: #FDFAF6; -fx-border-radius: 5px; -fx-background-radius: 5px;-fx-font-size: 20px;");
 
         root.getChildren().addAll(titleBox,cipherSelector, encryptOption, decryptOption, keyField, uploadButton, executeButton, resultArea);
 
