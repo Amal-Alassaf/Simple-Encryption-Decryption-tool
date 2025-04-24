@@ -1,7 +1,9 @@
+package crptoproject;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -13,6 +15,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Ciphers {
@@ -26,6 +29,9 @@ public class Ciphers {
     }
 
     public String encryptDES(String filePath, String key) throws Exception {
+        if (key.length() != 8) {
+            return "Error: DES key must be exactly 8 characters long.";
+        }
         // Read input from file
         StringBuilder message = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -49,36 +55,34 @@ public class Ciphers {
         return (Base64.getEncoder().encodeToString(cipherText));
     }
 
-    public void decryptFile(String filePath, String secretKey) {
+    public String decryptFile(String filePath, String secretKey) {
         try {
-            // Read the encrypted content from the file
+            if (secretKey.length() != 8) {
+                return "Error: DES key must be exactly 8 characters long.";
+            }
+
             String cipherText = new String(Files.readAllBytes(Paths.get(filePath))).trim();
-
-            // Remove any unintended spaces or newlines (fix for "Illegal base64 character" issue)
             cipherText = cipherText.replaceAll("\\s+", "");
-
             // Decode the Base64-encoded ciphertext
             byte[] encryptedBytes = Base64.getDecoder().decode(cipherText);
 
             // Generate the DES key
-            DESKeySpec desKeySpec = new DESKeySpec(secretKey.getBytes());
-            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("DES");
-            SecretKey key = secretKeyFactory.generateSecret(desKeySpec);
-
+            byte[] keyBytes = Arrays.copyOf(secretKey.getBytes(StandardCharsets.UTF_8), 8);
+            DESKeySpec desKeySpec = new DESKeySpec(keyBytes);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
+            SecretKey key = factory.generateSecret(desKeySpec);
             // Initialize the cipher for decryption
             Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, key);
-
             // Perform decryption
             byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
             String decryptedText = new String(decryptedBytes);
-
             // Display the decrypted text
-            System.out.println("Decrypted text: " + decryptedText);
+            return "Decrypted text: " + decryptedText;
         } catch (IllegalArgumentException e) {
-            System.out.println("Error: Invalid Base64 encoding. Ensure the input is correct.");
+            return "Error: Invalid Base64 encoding. Ensure the input is correct.";
         } catch (Exception e) {
-            System.out.println("Decryption error: " + e.getMessage());
+            return "Decryption error: " + e.getMessage();
         }
     }
 
@@ -97,11 +101,6 @@ public class Ciphers {
         for (String[] pair : morseTable) {
             morseMap.put(pair[0].charAt(0), pair[1]);  // Convert first string to char
             reverseMorseMap.put(pair[1], pair[0].charAt(0));  // Store reverse mapping
-        }
-
-        for (String[] pair : morseTable) {
-            morseMap.put(pair[0].charAt(0), pair[1]);
-            reverseMorseMap.put(pair[1], pair[0].charAt(0));
         }
     }
 
@@ -134,6 +133,9 @@ public class Ciphers {
     }
 
     public String ceaser(String plainText, int key) {
+        if (key < 0 || key > 26) {
+            return "The key size should be between 0 and 26";
+        }
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < plainText.length(); i++) {
             char ch = plainText.charAt(i);
@@ -148,6 +150,9 @@ public class Ciphers {
     }
 
     public String ceaserDecrypt(String cipherText, int key) {
+        if (key < 0 || key > 26) {
+            return "The key size should be between 0 and 26";
+        }
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < cipherText.length(); i++) {
             char ch = cipherText.charAt(i);
