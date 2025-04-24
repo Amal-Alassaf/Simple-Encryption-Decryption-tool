@@ -111,14 +111,14 @@ public class CipherUI extends Application {
             switch (cipher) {
                 case "DES":
                     if (key.isEmpty()) {
-                        resultArea.setText("Please enter a key for DES.");
+                        resultArea.setText("Please enter a key");
                         return;
                     }
                     if (action.equals("Encrypt")) {
                         result = algorithm.encryptDES(selectedFile.getAbsolutePath(), key);
                     } else {
                         // For consistency, use decryptFile and capture output as a string
-                        result = decryptDESAsString(selectedFile.getAbsolutePath(), key);
+                        result = algorithm.decryptFile(selectedFile.getAbsolutePath(), key);
                     }
                     break;
 
@@ -153,28 +153,6 @@ public class CipherUI extends Application {
         }
     }
 
-    // Helper to get decrypted text from DES (which prints to console by default)
-    private String decryptDESAsString(String filePath, String key) {
-        try {
-            // Read Base64 encoded text from file
-            String cipherText = new String(Files.readAllBytes(selectedFile.toPath())).trim();
-            cipherText = cipherText.replaceAll("\\s+", "");
-
-            // Decode and decrypt
-            byte[] encryptedBytes = java.util.Base64.getDecoder().decode(cipherText);
-            javax.crypto.spec.DESKeySpec desKeySpec = new javax.crypto.spec.DESKeySpec(key.getBytes());
-            javax.crypto.SecretKeyFactory keyFactory = javax.crypto.SecretKeyFactory.getInstance("DES");
-            javax.crypto.SecretKey secretKey = keyFactory.generateSecret(desKeySpec);
-
-            javax.crypto.Cipher desCipher = javax.crypto.Cipher.getInstance("DES/ECB/PKCS5Padding");
-            desCipher.init(javax.crypto.Cipher.DECRYPT_MODE, secretKey);
-
-            byte[] decryptedBytes = desCipher.doFinal(encryptedBytes);
-            return new String(decryptedBytes);
-        } catch (Exception e) {
-            return "DES Decryption failed: " + e.getMessage();
-        }
-    }
 
     public static void main(String[] args) {
         launch(args);
